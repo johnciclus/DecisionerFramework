@@ -26,10 +26,10 @@ repositories {
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-core"
     compile "org.grails:grails-plugin-url-mappings"
     compile "org.grails:grails-plugin-rest"
     compile "org.grails:grails-plugin-codecs"
@@ -49,6 +49,12 @@ dependencies {
     console "org.grails:grails-console"
     compile 'org.kohsuke:groovy-sandbox:1.11'
 
+    compile 'org.apache.jena:jena:3.2.0'
+    compile 'org.apache.jena:jena-arq:3.2.0'
+    compile 'org.apache.jena:jena-iri:3.2.0'
+
+    compile 'com.github.DilvanLab:GroovySparql:0.9.1'
+
     profile "org.grails.profiles:rest-api"
     runtime "com.h2database:h2"
 
@@ -57,6 +63,11 @@ dependencies {
     testCompile "org.grails:grails-datastore-rest-client"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+}
+
+configurations {
+    compile.exclude group: "org.slf4j", module: "slf4j-log4j12"
+    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
 bootRun {

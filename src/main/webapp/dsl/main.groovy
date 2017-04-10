@@ -10,6 +10,12 @@ tab ':SustainabilityIndicator', {
 
 tab ':Variable', {
 	
+	feature ':EnvironmentalIndicator', 'extraFeatures': true
+
+    feature ':EconomicIndicator', 'extraFeatures': true
+
+    feature ':SocialIndicator', 'extraFeatures': true
+	
     feature ':ProductionEfficiencyFeature'
 
     feature ':TechnologicalEfficiencyFeature', {
