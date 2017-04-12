@@ -1,21 +1,15 @@
-tab ':SustainabilityIndicator', {
-	
-	feature ':EnvironmentalIndicator', 'extraFeatures': true
+group ':SustainabilityIndicator', {
+
+    feature ':EnvironmentalIndicator', 'extraFeatures': true
 
     feature ':EconomicIndicator', 'extraFeatures': true
 
     feature ':SocialIndicator', 'extraFeatures': true
-    
+
 }
 
-tab ':Variable', {
-	
-	feature ':EnvironmentalIndicator', 'extraFeatures': true
+group ':Variable', {
 
-    feature ':EconomicIndicator', 'extraFeatures': true
-
-    feature ':SocialIndicator', 'extraFeatures': true
-	
     feature ':ProductionEfficiencyFeature'
 
     feature ':TechnologicalEfficiencyFeature', {
@@ -26,5 +20,5 @@ tab ':Variable', {
             include ':TechnologicalEfficiencyInTheField', ':TechnologicalEfficiencyInTheIndustrial'
         }
     }
-    
+
 }

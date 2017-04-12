@@ -13,6 +13,10 @@ class DSLController {
         render result as JSON
     }
 
+    def show(id) {
+
+    }
+
     def save(){
         def file = ctx.getResource("dsl/main.groovy").file
         def json = request.JSON;

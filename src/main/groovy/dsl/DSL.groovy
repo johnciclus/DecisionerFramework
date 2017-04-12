@@ -53,30 +53,39 @@ class DSL {
         parentNode = tmpNode
     }
 
-    def tab(String id, Closure closure = {}){
+    def group(String id, Closure closure = {}){
         def uri = _k.toURI(id)
         def kNode = new Node(_k, uri)
-        def node = [id: id, label: kNode['label'], type: 'tab', children: []]
+        def node = [id: uri, label: kNode['label'], type: 'group', children: []]
 
+        if(parentNode == null || parentNode.type != 'tabs'){
+            _createParentNode('tabs', 'swc-tabs-pages')
+        }
         addNodeToViewMap(node, closure)
     }
 
     def feature(Map attrs, String id, Closure closure = {}){
-        String uri = _k.toURI(id)
-        def feature = new Feature(id, attrs, _ctx)
-
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = feature
-
+        def uri = _k.toURI(id)
+        def feature = new Feature(uri, attrs, _ctx)
         def kNode = new Node(_k, uri)
         def subClasses = kNode.getSubClass('?label')
         def children = []
 
+        if(parentNode == null || parentNode.type != 'tabs'){
+            _createParentNode('tabs', 'swc-tabs-pages')
+        }
+
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = feature
+
         subClasses.each{ cls ->
+
             cls['type'] = 'class'
+            cls['widget'] = 'h4'
             cls['children'] = []
-            children.push(cls)
-            println children
+
+            def legend = [type: 'class', widget: 'legend', children: [cls]]
+            children.push(legend)
         }
 
         def node = attrs + [id: id, label: kNode.label, type: 'feature', children: children]
@@ -89,5 +98,11 @@ class DSL {
 
     def getViewMap(){
         return viewMap
+    }
+
+    def _createParentNode(String type, String widget){
+        def node = [type: type, widget: widget, children: []]
+        addNodeToViewMap(node, {})
+        parentNode = node
     }
 }
