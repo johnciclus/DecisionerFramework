@@ -133,6 +133,14 @@ class Node {
     }
 
     /**
+     * Get superclasses of a class
+     * @return
+     */
+    def getSuperClass(){
+        getAttr('?superClass', ['FILTER': "?superClass != <$URI>"])
+    }
+
+    /**
      * Get all individuals of type this node that have the properties in args.
      * @param args
      * @return
@@ -170,5 +178,161 @@ class Node {
         }
 
         (result.size()==1)? result[0] : result
+    }
+
+    /**
+     * Get all nodes that are children of children.
+     * @param args
+     * @return
+     */
+    def getGrandchildren(String args){
+        def argsList = args.tokenize(' ?')
+        def query = ''
+        def result
+
+        if (argsList.contains('subClass') && argsList.contains('id')) {
+            query += "?subClass rdfs:subClassOf <$URI>"
+
+            if (argsList.contains('subClassLabel'))
+                query += "; rdfs:label ?subClassLabel"
+
+            query += "."
+
+            query +="?id rdfs:subClassOf ?subClass"
+
+            if (argsList.contains('label'))
+                query +="; rdfs:label ?label"
+
+            if (argsList.contains('relevance'))
+                query +=". optional {?id :relevance ?relevance}"
+
+            query += "."
+
+            if(argsList.contains('category')){
+                query += ''' ?id rdfs:subClassOf ?y.
+                             ?y owl:onProperty ui:value.
+                             ?y owl:onClass*/owl:someValuesFrom ?category. '''
+            }
+            if(argsList.contains('weight')){
+                query += ''' optional {
+                                ?id rdfs:subClassOf ?z.
+                                ?z owl:onProperty ui:hasWeight.
+                                ?z owl:onClass*/owl:someValuesFrom ?weight.
+                                ?weight rdfs:label ?weightLabel.
+                             } '''
+            }
+
+            query += "FILTER(?subClass != <$URI> && ?subClass != ?id && ?category != ui:Categorical)"
+        }
+
+        result = k.select('distinct '+args).query(query, "ORDER BY ?label")
+
+        // Adding new attributes to the class of result to add
+        // new methods to this object. The goal is to get a better
+        // format.
+
+        result.metaClass.category = {
+            delegate.collect {it['category']}
+        }
+        result.metaClass.categoryList = {
+            propertyToList(delegate, 'category')
+        }
+        result.metaClass.subClass = {
+            delegate.collect {it['subClass']}
+        }
+        result.metaClass.subClassMap = { attrs ->
+            propertyToMap(delegate, 'subClass', attrs)
+        }
+        result
+    }
+
+    /**
+     * If the node is an indicator using a category
+     * it returns all category types that the indicator can assume.
+     * @return
+     */
+    def getCollectionIndividualsTypes(){
+        def query = ''
+        def result
+
+        query += "<$URI> rdfs:subClassOf ?y. " +
+                "?y owl:onProperty ui:value. "+
+                "?y owl:onClass*/owl:someValuesFrom ?category. "+
+                "optional {"+
+                "   ?category owl:oneOf ?collection. "+
+                "   ?collection rdf:rest*/rdf:first ?element. "+
+                "   ?element a ?types. "+
+                "}"+
+                "optional{"+
+                "   ?category rdfs:subClassOf ?types. "+
+                "}"+
+                "FILTER(?category != <http://purl.org/biodiv/semanticUI#Categorical>)"
+
+        result = k.select('distinct ?types').query(query, "ORDER BY ?elementLabel")
+        result.collect{ it['types'] }
+    }
+
+    /**
+     * If the node is an indicator using a category
+     * it returns all individual categories that the indicator can assume.
+     * @return
+     */
+    def getCollectionIndividuals(){
+        def query = ''
+        def result
+
+        query += "<$URI> rdfs:subClassOf ?y. " +
+                "?y owl:onProperty ui:value. "+
+                "?y owl:onClass*/owl:someValuesFrom ?category. "+
+                "optional {"+
+                "   ?category owl:oneOf ?collection. "+
+                "   ?collection rdf:rest*/rdf:first ?id. "+
+                "}"+
+                "optional {"+
+                "   ?id a ?category. "+
+                "}"+
+                "?id rdfs:label ?label. "+
+                "?id ui:dataValue ?dataValue. "+
+                "FILTER(?category != <http://purl.org/biodiv/semanticUI#Categorical>)"
+
+        result = k.select('distinct ?category ?id ?label ?dataValue').query(query, "ORDER BY ?dataValue")
+
+        result.metaClass.capitalizeLabels = {
+            delegate.each{
+                it.label = it.label.capitalize()
+            }
+        }
+        result
+    }
+
+    /**
+     * Get individuals from indicators that have the weight property.
+     * @return
+     */
+    def getWeightIndividuals(){
+        def query = ''
+        def result
+
+        query += "<$URI> rdfs:subClassOf ?y. " +
+                "?y owl:onProperty ui:hasWeight. "+
+                "?y owl:onClass*/owl:someValuesFrom ?weights. "+
+                "optional {"+
+                "   ?weights owl:oneOf ?collection. "+
+                "   ?collection rdf:rest*/rdf:first ?id. "+
+                "}"+
+                "optional {"+
+                "   ?id a ?weights. "+
+                "}"+
+                "?id rdfs:label ?label. "+
+                "?id ui:asNumber ?dataValue. "
+
+        result = k.select('distinct ?id ?label ?dataValue').query(query, "ORDER BY ?label")
+
+        result.metaClass.capitalizeLabels = {
+            delegate.each{
+                it.label = it.label.capitalize()
+            }
+        }
+        result
     }
 }

@@ -56,7 +56,7 @@ class DSL {
     def group(String id, Closure closure = {}){
         def uri = _k.toURI(id)
         def kNode = new Node(_k, uri)
-        def node = [id: uri, label: kNode['label'], type: 'group', children: []]
+        def node = [id: uri, label: kNode['label'], children: []]
 
         if(parentNode == null || parentNode.type != 'tabs'){
             _createParentNode('tabs', 'swc-tabs-pages')
@@ -68,8 +68,13 @@ class DSL {
         def uri = _k.toURI(id)
         def feature = new Feature(uri, attrs, _ctx)
         def kNode = new Node(_k, uri)
-        def subClasses = kNode.getSubClass('?label')
+        def tmpNode
+
         def children = []
+
+        def subClasses = kNode.getSubClass('?label')
+
+        def grandChildren = kNode.getGrandchildren('?id ?label ?subClass ?relevance ?category ?weight ?weightLabel')
 
         if(parentNode == null || parentNode.type != 'tabs'){
             _createParentNode('tabs', 'swc-tabs-pages')
@@ -78,17 +83,52 @@ class DSL {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = feature
 
-        subClasses.each{ cls ->
+        def divs = []
+        def widgets = []
+        def radio
+        def label
 
-            cls['type'] = 'class'
-            cls['widget'] = 'h4'
-            cls['children'] = []
+        subClasses.each{ subClass ->
+            subClass['widget'] = 'h5'
+            grandChildren.each{
+                if(subClass.id == it.subClass) {
+                    tmpNode = new Node(_k, it.id)
 
-            def legend = [type: 'class', widget: 'legend', children: [cls]]
-            children.push(legend)
+                    def valueTypes = tmpNode.collectionIndividualsTypes
+                    def categoryIndividuals = tmpNode.collectionIndividuals.capitalizeLabels()
+                    def weightIndividuals
+
+                    if(it.weight){
+                        weightIndividuals = tmpNode.weightIndividuals.capitalizeLabels()
+                    }
+
+                    widgets.push([widget: 'label', label: it.label])
+
+                    if(valueTypes.contains('http://purl.org/biodiv/semanticUI#Boolean') || valueTypes.contains('http://purl.org/biodiv/semanticUI#Categorical')){
+                        categoryIndividuals.each{ option ->
+                            radio = [widget: 'input', type: 'radio', value: option.id]
+                            label = [widget: 'label', label: option.label, children: [radio]]
+                            widgets.push([widget: 'div', children: [label]])
+                        }
+
+                    }else{
+                        widgets.push([widget: 'input', type: 'text'])
+                    }
+
+                    divs.push([widget: 'div', children: widgets])
+                    widgets = []
+
+                    //println valueTypes
+                    //println categoryIndividuals
+
+                }
+            }
+            def fieldSet = [widget: 'fieldset', id: subClass.id, children: [[widget: 'legend', children: [subClass]]]+divs]
+            divs = []
+            children.push(fieldSet)
         }
 
-        def node = attrs + [id: id, label: kNode.label, type: 'feature', children: children]
+        def node = attrs + [id: uri, label: kNode.label, children: children]
         addNodeToViewMap(node, closure)
     }
 
@@ -105,4 +145,6 @@ class DSL {
         addNodeToViewMap(node, {})
         parentNode = node
     }
+
+
 }
