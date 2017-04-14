@@ -85,8 +85,10 @@ class DSL {
 
         def divs = []
         def widgets = []
-        def radio
+        def radios
         def label
+        def value = 0
+        def lid = 0
 
         subClasses.each{ subClass ->
             subClass['widget'] = 'h5'
@@ -102,15 +104,15 @@ class DSL {
                         weightIndividuals = tmpNode.weightIndividuals.capitalizeLabels()
                     }
 
-                    widgets.push([widget: 'label', label: it.label])
+                    widgets.push([widget: 'label',id: 'label'+lid, label: it.label])
 
                     if(valueTypes.contains('http://purl.org/biodiv/semanticUI#Boolean') || valueTypes.contains('http://purl.org/biodiv/semanticUI#Categorical')){
+                        radios = []
                         categoryIndividuals.each{ option ->
-                            radio = [widget: 'input', type: 'radio', value: option.id]
-                            label = [widget: 'label', label: option.label, children: [radio]]
-                            widgets.push([widget: 'div', children: [label]])
+                            radios.push([widget: 'paper-radio-button', name: value++, label: option.label]) //name: option.id,
                         }
-
+                        widgets.push([widget: 'paper-radio-group', 'aria-labelledby': 'label'+lid, children: radios]) //it.id
+                        lid++;
                     }else{
                         widgets.push([widget: 'input', type: 'text'])
                     }
@@ -145,6 +147,4 @@ class DSL {
         addNodeToViewMap(node, {})
         parentNode = node
     }
-
-
 }
