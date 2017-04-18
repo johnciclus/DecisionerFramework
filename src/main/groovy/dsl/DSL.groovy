@@ -11,16 +11,19 @@ import semantics.*
 class DSL {
     private _ctx
     private Know _k
+    private UIDSL _ui
     private _shell
     private _sandbox
     private _script
 
+    private dataTypes = [:]
     private viewMap = []
     private parentNode = null
 
     DSL(String filename, ApplicationContext applicationContext){
         _ctx = applicationContext;
         _k = _ctx.getBean('k')
+        _ui= _ctx.getBean('ui')
 
         def _cc = new CompilerConfiguration()
         _cc.addCompilationCustomizers(new SandboxTransformer())
@@ -54,17 +57,19 @@ class DSL {
     }
 
     def group(String id, Closure closure = {}){
+        def featureURI = _k.toURI('ui:Feature')
         def uri = _k.toURI(id)
         def kNode = new Node(_k, uri)
         def node = [id: uri, label: kNode['label'], children: []]
 
-        if(parentNode == null || parentNode.type != 'tabs'){
-            _createParentNode('tabs', 'swc-tabs-pages')
+        if(parentNode == null || parentNode.type != featureURI){
+            _createParentNode(featureURI, _ui.dataTypes[featureURI])
         }
         addNodeToViewMap(node, closure)
     }
 
     def feature(Map attrs, String id, Closure closure = {}){
+        def featureURI = _k.toURI('ui:Feature')
         def uri = _k.toURI(id)
         def feature = new Feature(uri, attrs, _ctx)
         def kNode = new Node(_k, uri)
@@ -76,8 +81,8 @@ class DSL {
 
         def grandChildren = kNode.getGrandchildren('?id ?label ?subClass ?relevance ?category ?weight ?weightLabel')
 
-        if(parentNode == null || parentNode.type != 'tabs'){
-            _createParentNode('tabs', 'swc-tabs-pages')
+        if(parentNode == null || parentNode.type != featureURI){
+            _createParentNode(featureURI, _ui.dataTypes[featureURI])
         }
 
         closure.resolveStrategy = Closure.DELEGATE_FIRST
@@ -86,9 +91,6 @@ class DSL {
         def divs = []
         def widgets = []
         def radios
-        def label
-        def value = 0
-        def lid = 0
 
         subClasses.each{ subClass ->
             subClass['widget'] = 'h5'
@@ -104,15 +106,15 @@ class DSL {
                         weightIndividuals = tmpNode.weightIndividuals.capitalizeLabels()
                     }
 
-                    widgets.push([widget: 'label',id: 'label'+lid, label: it.label])
+                    widgets.push([widget: 'label', id: it.id, label: it.label])
 
                     if(valueTypes.contains('http://purl.org/biodiv/semanticUI#Boolean') || valueTypes.contains('http://purl.org/biodiv/semanticUI#Categorical')){
                         radios = []
                         categoryIndividuals.each{ option ->
-                            radios.push([widget: 'paper-radio-button', name: value++, label: option.label]) //name: option.id,
+                            radios.push([widget: 'paper-radio-button', name: option.id, label: option.label])
                         }
-                        widgets.push([widget: 'paper-radio-group', 'aria-labelledby': 'label'+lid, children: radios]) //it.id
-                        lid++;
+                        widgets.push([widget: 'paper-radio-group', 'aria-labelledby': it.id, children: radios])
+
                     }else{
                         widgets.push([widget: 'input', type: 'text'])
                     }
@@ -130,7 +132,8 @@ class DSL {
             children.push(fieldSet)
         }
 
-        def node = attrs + [id: uri, label: kNode.label, children: children]
+        def div = attrs + [widget: 'div', children: children]
+        def node = [id: uri, label: kNode.label, children: [div]]
         addNodeToViewMap(node, closure)
     }
 

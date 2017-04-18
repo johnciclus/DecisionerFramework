@@ -7,6 +7,7 @@ import dsl.DSL;
 class DSLController {
 	static responseFormats = ['json', 'xml']
     def ctx = grailsApplication.mainContext;
+
     def index() {
         def file = ctx.getResource("dsl/main.groovy").file
         def result = [code: file.text]
