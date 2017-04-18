@@ -7,7 +7,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(DSLController)
-class DSLControllerSpec extends Specification {
+class DecisionerDSLControllerSpec extends Specification {
 
     def setup() {
     }

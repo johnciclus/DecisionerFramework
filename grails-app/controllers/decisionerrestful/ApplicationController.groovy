@@ -1,9 +1,7 @@
 package decisionerrestful
 
-import dsl.DSL
 import grails.converters.JSON
 import grails.core.GrailsApplication
-import grails.util.Environment
 import grails.plugins.*
 
 class ApplicationController implements PluginManagerAware {
@@ -13,13 +11,8 @@ class ApplicationController implements PluginManagerAware {
 
     def index() {
         //[grailsApplication: grailsApplication, pluginManager: pluginManager]
-        def dsl = new DSL("dsl/main.groovy", grailsApplication.mainContext)
+        def result = [status: 'ok']
 
-        render dsl.viewMap as JSON
-    }
-
-    def show(id) {
-        def result = [id: id]
         render result as JSON
     }
 }

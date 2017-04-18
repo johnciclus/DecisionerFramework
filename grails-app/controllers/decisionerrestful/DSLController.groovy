@@ -2,31 +2,49 @@ package decisionerrestful
 
 import grails.rest.*
 import grails.converters.*
-import dsl.DSL;
+import dsl.*
 
 class DSLController {
 	static responseFormats = ['json', 'xml']
     def ctx = grailsApplication.mainContext;
 
     def index() {
-        def file = ctx.getResource("dsl/main.groovy").file
-        def result = [code: file.text]
-        render result as JSON
+        def dsls = ctx.getResource("dsl/").file
+        def data = []
+        dsls.eachFile { file ->
+            data.push(file.getName().replaceFirst(~/\.[^\.]+$/, ''))
+        }
+
+        respond data
     }
 
-    def show(id) {
+    def show() {
+        def file = ctx.getResource("dsl/"+params.id+".groovy").file
+        def data = [:]
 
+        if(file.exists()){
+            data['dsl'] = file.text
+        }
+        else{
+            data['error'] = 'No file found'
+        }
+
+        respond data
     }
 
     def save(){
-        def file = ctx.getResource("dsl/main.groovy").file
-        def json = request.JSON;
+        def input = request.JSON;
+        def file = ctx.getResource("dsl/"+input.id+".groovy").file
+        def data = [:]
 
-        if(file.exists())
-            file.write(json.code);
+        if(file.exists()){
+            file.write(input.dsl)
+            data['message'] = 'DSL Saved'
+        }
+        else{
+            data['error'] = 'No file found'
+        }
 
-        def dsl = new DSL("dsl/main.groovy", ctx)
-
-        render dsl.viewMap as JSON
+        respond data
     }
 }
