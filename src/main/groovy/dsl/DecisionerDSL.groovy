@@ -15,7 +15,13 @@ class DecisionerDSL extends DSL{
         super(filename, applicationContext)
     }
 
-    def addNodeToData(node, closure){
+    private def createParentNode(String type){
+        def node = [type: type, children: []]
+        addNodeToData(node, {})
+        parentNode = node
+    }
+
+    private def addNodeToData(node, closure){
         if(parentNode == null)
             data.push(node)
         else
@@ -27,20 +33,23 @@ class DecisionerDSL extends DSL{
         parentNode = tmpNode
     }
 
-    def group(String id, Closure closure = {}){
-        def featureURI = k.toURI('ui:Feature')
+    def featureGroup(String id, Closure closure = {}){
+        def featureGroup = k.toURI('ui:FeatureGroup')
         def uri = k.toURI(id)
         def kNode = new Node(k, uri)
         def node = [id: uri, label: kNode['label'], children: []]
 
-        if(parentNode == null || parentNode.type != featureURI){
-            createParentNode(featureURI)
+        if(parentNode == null || parentNode.type != featureGroup){
+            createParentNode(featureGroup)
         }
         addNodeToData(node, closure)
     }
 
     def feature(Map attrs, String id, Closure closure = {}){
         def featureURI = k.toURI('ui:Feature')
+        def featureGroup = k.toURI('ui:FeatureGroup')
+        def categoricalURI = k.toURI('ui:Categorical')
+        def IndicatorURI = k.toURI(':Indicator')
         def uri = k.toURI(id)
         def feature = new Feature(uri, attrs, context)
         def kNode = new Node(k, uri)
@@ -50,21 +59,29 @@ class DecisionerDSL extends DSL{
 
         def subClasses = kNode.getSubClass('?label')
 
+        def superClasses = kNode.getSuperClass('?label')
+
+        def typeURI = featureURI
+
+        superClasses.each{
+            if(it.id != IndicatorURI && it.id != featureURI){
+                typeURI = it.id
+            }
+        }
+
         def grandChildren = kNode.getGrandchildren('?id ?label ?subClass ?relevance ?category ?weight ?weightLabel')
 
-        if(parentNode == null || parentNode.type != featureURI){
-            createParentNode(featureURI)
+        if(parentNode == null || parentNode.type != featureGroup){
+            createParentNode(featureGroup)
         }
 
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = feature
 
-        def divs = []
-        def widgets = []
-        def radios
+        def features = []
+        def options
 
         subClasses.each{ subClass ->
-            subClass['widget'] = 'h5'
             grandChildren.each{
                 if(subClass.id == it.subClass) {
                     tmpNode = new Node(k, it.id)
@@ -77,34 +94,24 @@ class DecisionerDSL extends DSL{
                         weightIndividuals = tmpNode.weightIndividuals.capitalizeLabels()
                     }
 
-                    widgets.push([widget: 'label', id: it.id, label: it.label])
-
-                    if(valueTypes.contains('http://purl.org/biodiv/semanticUI#Boolean') || valueTypes.contains('http://purl.org/biodiv/semanticUI#Categorical')){
-                        radios = []
+                    if(valueTypes.contains('http://purl.org/biodiv/semanticUI#Boolean') || valueTypes.contains(categoricalURI)){
+                        options = []
                         categoryIndividuals.each{ option ->
-                            radios.push([widget: 'paper-radio-button', name: option.id, label: option.label])
+                            options.push([type: categoricalURI, name: option.id, label: option.label])
                         }
-                        widgets.push([widget: 'paper-radio-group', 'aria-labelledby': it.id, children: radios])
+                        features.push([type: featureURI, 'id': it.id, label: it.label, children: options])
 
                     }else{
-                        widgets.push([widget: 'input', type: 'text'])
+                        features.push([type: featureURI]) //text
                     }
-
-                    divs.push([widget: 'div', children: widgets])
-                    widgets = []
-
-                    //println valueTypes
-                    //println categoryIndividuals
-
                 }
             }
-            def fieldSet = [widget: 'fieldset', id: subClass.id, children: [[widget: 'legend', children: [subClass]]]+divs]
-            divs = []
+            def fieldSet = [type: uri, id: subClass.id, label: subClass.label, children: features]
+            features = []
             children.push(fieldSet)
         }
 
-        def div = attrs + [widget: 'div', children: children]
-        def node = [id: uri, label: kNode.label, children: [div]]
+        def node = [type: typeURI, id: uri, label: kNode.label, children: children ] + attrs
         addNodeToData(node, closure)
     }
 
@@ -112,9 +119,5 @@ class DecisionerDSL extends DSL{
         feature([:], id, closure)
     }
 
-    def createParentNode(String type){
-        def node = [type: type, children: []]
-        addNodeToData(node, {})
-        parentNode = node
-    }
+
 }

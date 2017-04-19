@@ -136,8 +136,25 @@ class Node {
      * Get superclasses of a class
      * @return
      */
-    def getSuperClass(){
-        getAttr('?superClass', ['FILTER': "?superClass != <$URI>"])
+    def getSuperClass(String args=''){
+        def argsList = args.tokenize(' ?')
+        def query = ''
+
+        argsList.each{
+            if(argsList.contains('label'))
+                query += "?id rdfs:label ?label."
+        }
+
+        query += "<$URI> rdfs:subClassOf ?id." +
+                 "FILTER(?id != <$URI>)"
+
+        def arg = ''
+
+        if(argsList.size()>0){
+            arg = "?" + ['label', 'id'].join(" ?")
+        }
+
+        k.select('distinct ?id '+arg).query(query)
     }
 
     /**

@@ -1,4 +1,4 @@
-group ':SustainabilityIndicator', {
+featureGroup ':SustainabilityIndicator', {
 
     feature ':EnvironmentalIndicator', 'extraFeatures': true
 
@@ -8,7 +8,7 @@ group ':SustainabilityIndicator', {
 
 }
 
-group ':Variable', {
+featureGroup ':Variable', {
 
     feature ':ProductionEfficiencyFeature'
 
