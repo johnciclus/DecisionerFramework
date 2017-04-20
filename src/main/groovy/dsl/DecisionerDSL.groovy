@@ -8,8 +8,11 @@ import semantics.*
  */
 class DecisionerDSL extends DSL{
 
-    private UIDSL ui
     private parentNode = null
+    private _props = [:]
+    private _dataName
+    private _program
+    private report = []
 
     DecisionerDSL(String filename, ApplicationContext applicationContext){
         super(filename, applicationContext)
@@ -102,6 +105,7 @@ class DecisionerDSL extends DSL{
                         features.push([type: featureURI, 'id': it.id, label: it.label, children: options])
 
                     }else{
+                        println it
                         features.push([type: featureURI]) //text
                     }
                 }
@@ -119,5 +123,62 @@ class DecisionerDSL extends DSL{
         feature([:], id, closure)
     }
 
+    def data(String str){
+        _dataName = str
+    }
 
+    def setData(obj){
+        _props[_dataName]= obj
+    }
+
+    def getData(String key){
+        _props[key]
+    }
+
+    def report(Closure c){
+        _program = c
+    }
+
+    def runReport(){
+        _program()
+    }
+
+    def weightedSum(obj){
+        float val = 0
+        float value
+        float weight
+
+        println obj
+
+        if(obj in ArrayList) {
+            obj.each {
+                value = (it.value in Boolean ? (it.value ? 1 : -1) : it.value)
+                if (it.relevance)
+                    weight = (it.relevance in Boolean ? (it.relevance ? 1 : -1) : it.relevance)
+                else if (it.weight)
+                    weight = it.weight
+                else
+                    weight = 1.0
+                val += (float) value * weight
+            }
+        }
+        return val
+    }
+
+    def methodMissing(String id, attrs){
+        def elementURI = k.toURI('ui:'+id)
+        def attrsTmp = attrs.clone()
+        def tmp
+
+        if(attrs in Object[]){
+            def container = []
+            def element = null
+
+            report.push([type: elementURI])
+        }
+    }
+
+    def getReport(){
+        return report
+    }
 }

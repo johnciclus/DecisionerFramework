@@ -33,7 +33,8 @@ class DSL {
         _script.setDelegate(this)
 
         try {
-            _script.run()
+            def duration = benchmark(_script)
+            println "File '"+filename+"' execution took ${duration} ms"
         }
         finally {
             _sandbox.unregister()
@@ -50,5 +51,12 @@ class DSL {
 
     def getContext(){
         return _ctx
+    }
+
+    def benchmark(script) {
+        def start = System.currentTimeMillis()
+        script.run()
+        def now = System.currentTimeMillis()
+        now - start
     }
 }
