@@ -40,7 +40,7 @@ report {
             (technologicalEfficiencyInTheField+technologicalEfficiencyInTheIndustrial)
     */
 
-    sustainability = 20
+    sustainability = 40
 
     efficiency = 100
 
@@ -71,6 +71,6 @@ report {
                      ['en': 'Irrelevant changes', 'pt': 'Sem alteração'],
                      ['en': 'Positive changes', 'pt': 'Alterações positivas'],
                      ['en': 'Higher sustainability', 'pt': 'Mais sustentável']],
-            range: [-60,60]
+            range: [-43,43]
 
 }

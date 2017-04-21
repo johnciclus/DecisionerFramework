@@ -167,15 +167,9 @@ class DecisionerDSL extends DSL{
 
     def methodMissing(String id, attrs){
         def elementURI = k.toURI('ui:'+id)
-        def attrsTmp = attrs.clone()
-        def tmp
+        def map = attrs.collectEntries()
 
-        if(attrs in Object[]){
-            def container = []
-            def element = null
-
-            report.push([type: elementURI])
-        }
+        report.push([type: elementURI]+map)
     }
 
     def getReport(){
