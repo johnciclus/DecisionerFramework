@@ -12,7 +12,6 @@ class DecisionerDSL extends DSL{
     private _props = [:]
     private _dataName
     private _program
-    private report = []
 
     DecisionerDSL(String filename, ApplicationContext applicationContext){
         super(filename, applicationContext)
@@ -25,8 +24,10 @@ class DecisionerDSL extends DSL{
     }
 
     private def addNodeToData(node, closure){
+        if(dataModel['input'] == null )
+            dataModel['input'] = []
         if(parentNode == null)
-            data.push(node)
+            dataModel['input'].push(node)
         else
             parentNode.children.push(node)
 
@@ -34,6 +35,21 @@ class DecisionerDSL extends DSL{
         parentNode = node
         closure()
         parentNode = tmpNode
+    }
+
+    def evaluationObject(String id, Closure closure){
+        String uri = k.toURI(id)
+
+        def object = new EvaluationObject(uri, context)
+
+        if(dataModel['instance'] == null )
+            dataModel['instance'] = []
+
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = object
+        closure()
+
+        dataModel['instance'] = object.dataModel
     }
 
     def featureGroup(String id, Closure closure = {}){
@@ -169,10 +185,11 @@ class DecisionerDSL extends DSL{
         def elementURI = k.toURI('ui:'+id)
         def map = attrs.collectEntries()
 
-        report.push([type: elementURI]+map)
+        if(dataModel['report'] == null )
+            dataModel['report'] = []
+
+        dataModel['report'].push([type: elementURI]+map)
     }
 
-    def getReport(){
-        return report
-    }
+
 }

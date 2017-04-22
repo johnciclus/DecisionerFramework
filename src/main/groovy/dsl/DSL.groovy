@@ -15,7 +15,7 @@ class DSL {
     private _sandbox
     private _script
 
-    private data = []
+    private dataModel = [:]
 
     DSL(String filename, ApplicationContext applicationContext){
         _ctx = applicationContext;
@@ -45,8 +45,13 @@ class DSL {
         return _k
     }
 
-    def getData(){
-        return data
+    def getDataModel(String id = ''){
+        if(id == ''){
+            return dataModel
+        }
+        else{
+            return dataModel[id]
+        }
     }
 
     def getContext(){

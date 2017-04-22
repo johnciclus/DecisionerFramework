@@ -1,3 +1,41 @@
+//                          Decisioner
+
+// Esta DSL descreve como o aplicativo será gerado. Ele é em inglês pois
+// facilita na hora de publicarmos os papers. Porém, o aplicativo pode ser
+// em português ou inglês. Isso vai depender da ontologia, nela teremos as
+// definições nas duas linguas.
+
+// Informações que serão lidas antes dos indicadores. No exemplo serão
+// mostradas todas as culturas, tecnologias e meios de produção que
+// estiverem na ontologia
+// Mantemos crop, mas se a única que estiver na ontologia for Cana,
+// a interface só mostra uma opção (sem possibilidade de escolha)
+// Na ontologia, location definiria as microregiões do IBGE.
+// Se a fazenda ficar em mais de uma micro-região?
+
+// Caracterização dos sistemas produtivos no Centro-Sul
+evaluationObject ':ProductionUnit', {
+    //type or instance
+
+    // Production unit name
+    instance 'ui:hasName', label: ['en': 'Production unit or farm name', 'pt': 'Nome da unidade produtiva ou fazenda']
+
+    // Agricultural production system
+    instance ':hasAgriculturalProductionSystem', label: ['en': 'Agricultural production system' , 'pt': "Sistema de produção agrícola"]
+
+    // Production unit type
+    // Tipo de organização (Greenfiled, usinas tradicionais, familiares...?).
+    type label: ['en': "Production unit type", 'pt': "Tipo da unidade produtiva"], header: ['en': 'Options', 'pt': "Opções"]
+
+
+    // Origem da cana (própria, fornecedor, arrendamento)
+    instance  ':hasSugarcaneSource', label: ['en': 'Sugarcane source', 'pt': "Origem da cana"], header: ['en': 'Options', 'pt': "Opções"], multipleSelection: true, required: true
+
+    // Estado da unidade produtiva
+    instance 'dbp:state', label: ['en': 'State', 'pt': 'Estado'], header: ['en': 'States', 'pt': 'Estados']
+
+}
+
 featureGroup ':SustainabilityIndicator', {
 
     feature ':EnvironmentalIndicator', 'extraFeatures': true

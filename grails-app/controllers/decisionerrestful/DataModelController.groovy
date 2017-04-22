@@ -19,31 +19,32 @@ class DataModelController {
 
     def show() {
         def id = params.id
-        //def file = ctx.getResource("dsl/"+id+".groovy").file
         def data = [:]
         def uri = k.toURI('inds:'+'analysis01')
 
-        //if(file.exists()){
-            if(id == 'input'){
-                //def dsl = new DecisionerDSL("dsl/"+id+".groovy", grailsApplication.mainContext)
-                data = dsl.data
-            }
-            else if(id == 'report'){
+        switch(id){
+            case 'main':
+                data = dsl.dataModel['input']
+                break
+            case 'instance':
+                data = dsl.dataModel['instance']
+                break
+            case 'input':
+                data = dsl.dataModel[id]
+                break
+            case 'report':
                 dsl.setData(new DataReader(k, uri))
-                dsl.report = []
+                dsl.dataModel[id] = []
                 dsl.runReport()
-                data = dsl.report
-            }
-            else if(id == 'datatypes'){
-                data = ui.data
-            }
-            else{
+                data = dsl.dataModel[id]
+                break
+            case 'datatypes':
+                data = ui.dataModel
+                break
+            default:
                 data['error'] = 'File processing error'
-            }
-        /*}
-        else{
-            data['error'] = 'No file found'
-        }*/
+                break
+        }
 
         respond data
     }
