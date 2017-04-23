@@ -25,17 +25,14 @@ class EvaluationObject {
         def uri = k.toURI(id)
         def range = (id != 'rdfs:subClassOf')? k[uri].range : _id
         def dataType = (range)? range : k.toURI('xsd:string')
-        def prop
         def data = []
 
         if(id == 'rdfs:subClassOf'){
-            prop = id
             attrs['required'] = true
-            data = k[dataType].getLabelDescription(prop)
+            data = k[dataType].getLabelDescription(id)
         }
         else if(k[uri].type.contains(k.toURI('owl:ObjectProperty'))){
-            prop = 'rdf:type'
-            data = k[dataType].getLabelDescription(prop)
+            data = k[dataType].getLabelDescription('rdf:type')
         }
 
         if(k[uri].isFunctional()){
@@ -45,7 +42,9 @@ class EvaluationObject {
         if(data.size() > 0){
             data.each{
                 it['type'] = k.toURI('ui:Categorical')
-                it['name'] = it['id']
+                it['name'] = uri
+                it['value'] = it['id']
+
                 it.remove('id')
             }
             attrs.children = data

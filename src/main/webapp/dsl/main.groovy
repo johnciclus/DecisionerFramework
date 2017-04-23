@@ -29,10 +29,46 @@ evaluationObject ':ProductionUnit', {
 
 
     // Origem da cana (própria, fornecedor, arrendamento)
-    instance  ':hasSugarcaneSource', label: ['en': 'Sugarcane source', 'pt': "Origem da cana"], header: ['en': 'Options', 'pt': "Opções"], multipleSelection: true, required: true
+    instance  ':hasSugarcaneSource', label: ['en': 'Sugarcane source', 'pt': "Origem da cana"], multipleSelection: true, required: true
 
     // Estado da unidade produtiva
-    instance 'dbp:state', label: ['en': 'State', 'pt': 'Estado'], header: ['en': 'States', 'pt': 'Estados']
+    instance 'dbp:state', label: ['en': 'State', 'pt': 'Estado']
+
+    // Microrregião produtora
+    instance 'ui:hasMicroregion', label: ['en': 'Production unit microregion', 'pt': "Microrregião da unidade produtiva"]
+
+    //Municípios envolvidos (localização da sede)
+    instance ':municipalitiesInvolved', label: ['en': "Municipalities involved (unit location)", 'pt': "Municípios envolvidos (localização da sede)"], placeholder: "São Carlos, Jaguariúna, etc"
+
+    // Data de início do plantio
+    instance ':harvestYear', label: ['en': 'Harvest (year)', 'pt': "Safra (Ano)"], placeholder: "yyyy"
+
+    // Data de início do plantio
+    instance ':beginningOfPlantingDate', label: ['en': "Planting start date", 'pt': "Data de início do plantio"], placeholder: "dd/mm/yyyy"
+
+    // Data de término do plantio
+    instance ':finishOfPlantingDate', label: ['en': "Planting end date" ,'pt': "Data de término do plantio"], placeholder: "dd/mm/yyyy"
+
+    // Data de início da colheita
+    instance ':beginningOfHarvestDate', label: ['en': 'Harvest start date', 'pt': "Data de início da colheita"], placeholder: "dd/mm/yyyy"
+
+    // Data de término da colheita
+    instance ':finishOfHarvestDate', label: ['en': 'Planting end date', 'pt': "Data de término da colheita"], placeholder: "dd/mm/yyyy"
+
+    // Longevidade do canavial (cana de ano, cana de ano e meio);
+    instance ':canavialLongevity', label: ['en': "Canavial longevity (time in years and months)", 'pt': "Longevidade do canavial (tempo em anos e meses)"], placeholder: ['en': "One and a half year", 'pt': "Um ano e meio"]
+
+    // Projetos de inovação e/ou desenvolvimento (BNDES, Finep)
+    instance ':innovationDevelopmentProjects', label: ['en': "Innovation/development projects (BNDES, Finep)", 'pt': "Projetos de inovação e/ou desenvolvimento (BNDES, Finep)"], placeholder: ['en': "Description", 'pt': "Descrição"], widget: 'textAreaForm'
+
+    //Financiamento (crédito agrícola, custeio de maquinário, BNDES);
+    instance ':financing', label: ['en': "Financing (agricultural credit, machinery costing, BNDES)", 'pt': "Financiamento (crédito agrícola, custeio de maquinário, BNDES)"], placeholder: ['en': "Description", 'pt': "Descrição"], widget: 'textAreaForm'
+
+    // Parcerias para pesquisa ou aprimoramento do sistema (nome da instituição parceira, tipo da instituição – pública, privada, Cooperativas ou associações);
+    instance ':partnershipsForResearchOrImprovementOfTheSystem', label: ['en': "Partnerships for research or system enhancement (Name of partnership institution, institution type, public or private, cooperatives or associations)", 'pt': "Parcerias para pesquisa ou aprimoramento do sistema (nome da instituição parceira, tipo da instituição – pública, privada, Cooperativas ou associações)"], widget: 'textAreaForm', placeholder: ['en': "Description", 'pt': "Descrição"]
+
+    // Disponibilização dos resultados da avaliação: Público | privado
+    instance ':hasAvailabilityOfEvaluationResults', label: ['en': "Availability of evaluation results", 'pt': "Disponibilização dos resultados da avaliação"]
 
 }
 
