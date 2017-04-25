@@ -42,6 +42,38 @@ class DecisionerDSL extends DSL{
         parentNode = tmpNode
     }
 
+    def reload(String code){
+        def response  = [:]
+        dataModel = [:]
+        _props = [:]
+
+        sandbox.register()
+
+        script = (DelegatingScript) shell.parse(code)
+
+        script.setDelegate(this)
+
+        try {
+            script.run()
+            response.status = 'ok'
+        }catch(Exception e){
+            response.error = [:]
+            for (StackTraceElement el : e.getStackTrace()) {
+                if(el.getMethodName() == 'run' && el.getFileName() ==~ /Script.+\.groovy/) {
+                    response.error.line = el.getLineNumber()
+                    response.error.message = e.getMessage()
+                    response.error.filename = el.getFileName()
+                }
+            }
+            response.status = 'error'
+        }
+        finally {
+            sandbox.unregister()
+        }
+
+        return response
+    }
+
     def evaluationObject(String id, Closure closure){
         String uri = k.toURI(id)
 

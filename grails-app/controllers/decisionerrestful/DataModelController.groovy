@@ -38,11 +38,11 @@ class DataModelController {
                 data = dsl.dataModel[id]
                 break
             case 'admin':
-                def view = [type: k.toURI('ui:ReportView'), label: "Admin", action: "http://localhost:8080/Application", children: []]
+                def view = [type: k.toURI('ui:AdminView'), label: "Admin", action: "http://localhost:8080/Application", children: []]
                 data = [view]
                 break
             case 'dataTypes':
-                respond ui.dataModel
+                data =  ui.dataModel[id]
                 break
             default:
                 data['error'] = 'File processing error'

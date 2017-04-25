@@ -11,14 +11,14 @@ import semantics.Know
 class DSL {
     private _ctx
     private Know _k
-    private _shell
     private _sandbox
     private _script
+    private _shell
 
     def dataModel
 
     DSL(String filename, ApplicationContext applicationContext){
-        _ctx = applicationContext;
+        _ctx = applicationContext
         _k = _ctx.getBean('k')
 
         def _cc = new CompilerConfiguration()
@@ -59,6 +59,14 @@ class DSL {
     def getContext(){
         return _ctx
     }
+
+    def getSandbox(){return _sandbox}
+
+    def setScript(script){this._script = script}
+
+    def getScript(){return _script}
+
+    def getShell(){return _shell}
 
     def benchmark(script) {
         def start = System.currentTimeMillis()

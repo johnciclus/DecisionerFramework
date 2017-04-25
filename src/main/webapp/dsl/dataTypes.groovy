@@ -5,6 +5,7 @@ dataType "ui:sustainabilityMatrix",                         widget: "swc-sustain
 dataType "ui:sustainabilitySemaphore",                      widget: "swc-sustainability-semaphore"
 dataType "ui:View",                                         widget: "swc-form"
 dataType "ui:ReportView",                                   widget: "swc-paper"
+dataType "ui:AdminView",                                    widget: "swc-admin"
 dataType ":SustainabilityIndicator",                        widget: "div"
 dataType ":Variable",                                       widget: "div"
 dataType ":EnvironmentalIndicator",                         widget: "fieldset"

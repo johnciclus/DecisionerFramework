@@ -7,6 +7,7 @@ import dsl.*
 class DSLController {
 	static responseFormats = ['json', 'xml']
     def ctx = grailsApplication.mainContext;
+    def dsl
 
     def index() {
         def dsls = ctx.getResource("dsl/").file
@@ -33,18 +34,24 @@ class DSLController {
     }
 
     def save(){
-        def input = request.JSON;
-        def file = ctx.getResource("dsl/"+input.id+".groovy").file
-        def data = [:]
+        def input = request.JSON
+        def id = input.id
+        def file = ctx.getResource("dsl/"+id+".groovy").file
+        def response = [:]
 
         if(file.exists()){
-            file.write(input.dsl)
-            data['message'] = 'DSL Saved'
+            def result = dsl.reload(input.code)
+            response['message'] = result.status
+            if(result.status == 'ok'){
+                file.write(input.code)
+            }else{
+                println result
+            }
         }
         else{
-            data['error'] = 'No file found'
+            response['error'] = 'No file found'
         }
 
-        respond data
+        respond response
     }
 }
