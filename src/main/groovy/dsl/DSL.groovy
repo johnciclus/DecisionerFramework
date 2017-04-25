@@ -15,7 +15,7 @@ class DSL {
     private _sandbox
     private _script
 
-    private dataModel = [:]
+    def dataModel
 
     DSL(String filename, ApplicationContext applicationContext){
         _ctx = applicationContext;
@@ -32,6 +32,8 @@ class DSL {
 
         _script.setDelegate(this)
 
+        dataModel = [:]
+
         try {
             def duration = benchmark(_script)
             println "File '"+filename+"' execution took ${duration} ms"
@@ -45,13 +47,13 @@ class DSL {
         return _k
     }
 
-    def getDataModel(String id = ''){
-        if(id == ''){
-            return dataModel
-        }
+    def getDataModel(){
+        //if(id == ''){
+        return this.dataModel
+        /*}
         else{
             return dataModel[id]
-        }
+        }*/
     }
 
     def getContext(){

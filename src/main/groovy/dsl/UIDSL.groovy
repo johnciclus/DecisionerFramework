@@ -12,6 +12,8 @@ class UIDSL extends DSL{
 
     def dataType(Map attrs, String id){
         def uri = k.toURI(id)
-        dataModel[uri] = attrs.widget
+        this.dataModel[uri] = attrs.widget
+        //this._dataModel[uri] = attrs.widget
     }
+
 }

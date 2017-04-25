@@ -20,32 +20,34 @@ class DataModelController {
     def show() {
         def id = params.id
         def data = [:]
-        def uri = k.toURI('inds:'+'analysis01')
-
         switch(id){
             case 'main':
                 data = dsl.dataModel['input']
                 break
             case 'instance':
-                data = dsl.dataModel['instance']
+                data = dsl.dataModel[id]
                 break
             case 'input':
                 data = dsl.dataModel[id]
                 break
             case 'report':
+                def uri = k.toURI('inds:'+'analysis01')
                 dsl.setData(new DataReader(k, uri))
                 dsl.dataModel[id] = []
                 dsl.runReport()
                 data = dsl.dataModel[id]
                 break
-            case 'datatypes':
-                data = ui.dataModel
+            case 'admin':
+                def view = [type: k.toURI('ui:ReportView'), label: "Admin", action: "http://localhost:8080/Application", children: []]
+                data = [view]
+                break
+            case 'dataTypes':
+                respond ui.dataModel
                 break
             default:
                 data['error'] = 'File processing error'
                 break
         }
-
         respond data
     }
 }

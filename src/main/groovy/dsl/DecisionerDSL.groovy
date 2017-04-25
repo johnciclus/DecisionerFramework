@@ -24,12 +24,17 @@ class DecisionerDSL extends DSL{
     }
 
     private def addNodeToData(node, closure){
-        if(dataModel['input'] == null )
+        if(dataModel['input'] == null ) {
+            def view = [type: k.toURI('ui:View'), label: "Formulário de cadastro de indicadores", action: "http://localhost:8080/Application", children: []]
             dataModel['input'] = []
-        if(parentNode == null)
-            dataModel['input'].push(node)
-        else
+            dataModel['input'].push(view)
+        }
+        if(parentNode == null){
+            dataModel['input'][0].children.push(node)
+        }
+        else{
             parentNode.children.push(node)
+        }
 
         def tmpNode = parentNode
         parentNode = node
@@ -42,14 +47,17 @@ class DecisionerDSL extends DSL{
 
         def object = new EvaluationObject(uri, context)
 
-        if(dataModel['instance'] == null )
+        if(dataModel['instance'] == null ){
             dataModel['instance'] = []
+        }
 
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = object
         closure()
 
-        dataModel['instance'] = object.dataModel
+        def view = [type: k.toURI('ui:View'), label: "Formulário de cadastro de unidade produtiva", action: "http://localhost:8080/Application", children: object.dataModel]
+
+        dataModel['instance'].push(view)
     }
 
     def featureGroup(String id, Closure closure = {}){
@@ -185,11 +193,13 @@ class DecisionerDSL extends DSL{
         def elementURI = k.toURI('ui:'+id)
         def map = attrs.collectEntries()
 
-        if(dataModel['report'] == null )
+        if(dataModel['report'] == null || dataModel['report'].size() == 0){
+            def view = [type: k.toURI('ui:ReportView'), label: "Relatório de avaliação da Sustentabilidade", action: "http://localhost:8080/Application", children: []]
             dataModel['report'] = []
+            dataModel['report'].push(view)
+        }
 
-        dataModel['report'].push([type: elementURI]+map)
+        dataModel['report'][0].children.push([type: elementURI]+map)
     }
-
 
 }

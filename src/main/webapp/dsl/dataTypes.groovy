@@ -3,6 +3,8 @@ dataType "ui:Feature",                                      widget: "swc-categor
 dataType "ui:Categorical",                                  widget: "paper-radio-button"
 dataType "ui:sustainabilityMatrix",                         widget: "swc-sustainability-matrix"
 dataType "ui:sustainabilitySemaphore",                      widget: "swc-sustainability-semaphore"
+dataType "ui:View",                                         widget: "swc-form"
+dataType "ui:ReportView",                                   widget: "swc-paper"
 dataType ":SustainabilityIndicator",                        widget: "div"
 dataType ":Variable",                                       widget: "div"
 dataType ":EnvironmentalIndicator",                         widget: "fieldset"

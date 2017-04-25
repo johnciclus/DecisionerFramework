@@ -50,7 +50,7 @@ class EvaluationObject {
             attrs.children = data
         }
 
-        dataModel.push([ id: uri,
+        dataModel.push([ name: uri,
                          type: dataType]+attrs)
     }
 
