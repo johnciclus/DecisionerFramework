@@ -23,7 +23,7 @@ class ApplicationController implements PluginManagerAware {
     }
 
     def save(){
-        //println params
+        println params
         def view = k.toURI('ui:View')
         def dataModel = dsl.dataModel['instance']
         def elements = dataModel[0].children
