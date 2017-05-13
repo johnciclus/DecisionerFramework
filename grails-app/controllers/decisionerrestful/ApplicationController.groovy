@@ -23,6 +23,7 @@ class ApplicationController implements PluginManagerAware {
     }
 
     def save(){
+        println 'Form data'
         println params
         def view = k.toURI('ui:View')
         def dataModel = dsl.dataModel['instance']
@@ -30,6 +31,8 @@ class ApplicationController implements PluginManagerAware {
         def hasName = k.toURI('ui:hasName')
         def type = k.toURI('rdfs:subClassOf')
         def data = [:]
+
+        println elements
 
         elements.each{
             params.each{ param ->
