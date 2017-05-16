@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.core.GrailsApplication
 import grails.plugins.*
 import semantics.Node
-
+import org.apache.commons.validator.routines.UrlValidator
 import java.text.SimpleDateFormat
 
 class ApplicationController implements PluginManagerAware {
@@ -23,24 +23,34 @@ class ApplicationController implements PluginManagerAware {
     }
 
     def save(){
-        println 'Form data'
-        println params
         def view = k.toURI('ui:View')
-        def dataModel = dsl.dataModel['instance']
-        def elements = dataModel[0].children
+        def dataModel = dsl.dataModel['input']
+        def features = dataModel[0].children
         def hasName = k.toURI('ui:hasName')
         def type = k.toURI('rdfs:subClassOf')
         def data = [:]
+        UrlValidator urlValidator = new UrlValidator();
 
-        println elements
-
-        elements.each{
-            params.each{ param ->
-                if((it.name == param.key) && param.value){
-                    data[it.name] = [value: param.value, dataType: it.type]
+        features.each{ featuresGroups ->
+            featuresGroups.children.each{ featuresGroup ->
+                featuresGroup.children.each{ dimensions ->
+                    dimensions.children.each{ dimension ->
+                        dimension.children.each{ attribute ->
+                            attribute.children.each{ indicator ->
+                                params.each{ param ->
+                                    if(urlValidator.isValid(param.key)){
+                                        if(param.key == indicator.id)
+                                            data[indicator.id] = [value: param.value, dataType: indicator.type]
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        println data
 
         if(data[hasName] && data[type]){
             def name = data[hasName].value
