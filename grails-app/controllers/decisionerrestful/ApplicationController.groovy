@@ -52,26 +52,26 @@ class ApplicationController implements PluginManagerAware {
 
         println data
 
-        if(data[hasName] && data[type]){
-            def name = data[hasName].value
-            def id = slugify.slugify(name)
-            def node = new Node(k)
-            def propertyInstances = [:]
-            def now = new Date()
-            def value
-
-            propertyInstances[k.toURI('ui:createAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(now), dataType: k.toURI('xsd:dateTime')]
-
-            data.each{
-                if(it.key != type){
-                    propertyInstances[it.key] = it.value
-                }
-            }
-
-            println id
-            println data[type]
-            println propertyInstances
-        }
+//        if(data[hasName] && data[type]){
+//            def name = data[hasName].value
+//            def id = slugify.slugify(name)
+//            def node = new Node(k)
+//            def propertyInstances = [:]
+//            def now = new Date()
+//            def value
+//
+//            propertyInstances[k.toURI('ui:createAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(now), dataType: k.toURI('xsd:dateTime')]
+//
+//            data.each{
+//                if(it.key != type){
+//                    propertyInstances[it.key] = it.value
+//                }
+//            }
+//
+//            println id
+//            println data[type]
+//            println propertyInstances
+//        }
 
 
         def result = [status: 'ok']
