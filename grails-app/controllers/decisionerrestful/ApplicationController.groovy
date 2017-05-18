@@ -6,6 +6,8 @@ import grails.plugins.*
 import semantics.Node
 import org.apache.commons.validator.routines.UrlValidator
 import java.text.SimpleDateFormat
+import java.text.ParsePosition
+
 
 class ApplicationController implements PluginManagerAware {
 
@@ -29,6 +31,8 @@ class ApplicationController implements PluginManagerAware {
         def hasName = k.toURI('ui:hasName')
         def type = k.toURI('rdfs:subClassOf')
         def data = [:]
+        def timestamp = new SimpleDateFormat('yyyy-MM-dd-HH-mm-ss').parse(analysisId, new ParsePosition(analysisId.length()-19));
+
         UrlValidator urlValidator = new UrlValidator();
 
         features.each{ featuresGroups ->
@@ -52,6 +56,46 @@ class ApplicationController implements PluginManagerAware {
 
         println data
 
+
+
+        def result = [status: 'ok']
+
+        render result as JSON
+    }
+
+    def createAnalysisAndFeatures(parameters){
+        println 'params.analysisId: '+parameters.analysisId
+
+        def evalObjURI = k.toURI(parameters.evalObjInstance)
+        def analysisId = parameters.analysisId
+        //def node = new Node(k)
+
+        def name = k[':Harvest'].label+ ' ' + k[evalObjURI]['?harvestYear']
+        def timestamp = new SimpleDateFormat('yyyy-MM-dd-HH-mm-ss').parse(analysisId, new ParsePosition(analysisId.length()-19));
+
+        def properties = [:]
+        def analysisSize = k[evalObjURI].getAnalysisLabel(name).size();
+        if(k['inds:'+analysisId].exist()){
+            name = k['inds:'+analysisId]['label']
+            properties[k.toURI('ui:updateAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()), dataType: k.toURI('xsd:dateTime')]
+
+            k.deleteFeatures(analysisId)
+            k.deleteAnalysis(analysisId)
+        }
+        else if(analysisSize > 0)
+            name += " ($analysisSize)"
+
+        properties[k.toURI('rdfs:label')] = [value: name, dataType: k.toURI('rdfs:Literal')]     //new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now)
+        properties[k.toURI(':appliedTo')] = [value: evalObjURI, dataType: k[':appliedTo'].range]
+        properties[k.toURI('ui:createAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(timestamp), dataType: k.toURI('xsd:dateTime')]
+
+        k.insertAnalysis(analysisId, properties)
+        k.insertFeatures(analysisId, featuresInstances(parameters))
+        k.insertExtraFeatures(analysisId, extraFeaturesInstances(parameters))
+    }
+
+    def createEvaluationObject(){
+
 //        if(data[hasName] && data[type]){
 //            def name = data[hasName].value
 //            def id = slugify.slugify(name)
@@ -72,14 +116,5 @@ class ApplicationController implements PluginManagerAware {
 //            println data[type]
 //            println propertyInstances
 //        }
-
-
-        def result = [status: 'ok']
-
-        render result as JSON
-    }
-
-    def createEvaluationObject(){
-
     }
 }
