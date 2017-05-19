@@ -3,7 +3,6 @@ package decisionerrestful
 import grails.converters.JSON
 import grails.core.GrailsApplication
 import grails.plugins.*
-import semantics.Node
 import org.apache.commons.validator.routines.UrlValidator
 import java.text.SimpleDateFormat
 import java.text.ParsePosition
@@ -31,9 +30,13 @@ class ApplicationController implements PluginManagerAware {
         def hasName = k.toURI('ui:hasName')
         def type = k.toURI('rdfs:subClassOf')
         def data = [:]
-        def timestamp = new SimpleDateFormat('yyyy-MM-dd-HH-mm-ss').parse(analysisId, new ParsePosition(analysisId.length()-19));
+        def timestamp = new SimpleDateFormat('yyyy-MM-dd-HH-mm-ss') //.parse(analysisId, new ParsePosition(analysisId.length()-19));
+        def evalObjId = k['inds:'+'analysis']
+        println(evalObjId)
 
         UrlValidator urlValidator = new UrlValidator();
+
+
 
         features.each{ featuresGroups ->
             featuresGroups.children.each{ featuresGroup ->
@@ -61,6 +64,12 @@ class ApplicationController implements PluginManagerAware {
         def result = [status: 'ok']
 
         render result as JSON
+    }
+
+
+    def createAnalysis(){
+        createAnalysisAndFeatures(params)
+        redirect(action: 'analysis', id: params.analysisId)
     }
 
     def createAnalysisAndFeatures(parameters){
@@ -94,27 +103,28 @@ class ApplicationController implements PluginManagerAware {
         k.insertExtraFeatures(analysisId, extraFeaturesInstances(parameters))
     }
 
-    def createEvaluationObject(){
+    def updateAnalysis(){
+        //def now = new Date()
+        def analysisId = params.analysisId
+        def analysisURI = k.toURI('inds:'+analysisId)
+        //def evalObjURI = k[analysisURI].getAttr('appliedTo')
+        //def createAt = k[analysisURI].getAttr('createAt')
+        //def name = k[analysisURI].getAttr('label')
+        //def node = new Node(k)
+        def properties = [:]
 
-//        if(data[hasName] && data[type]){
-//            def name = data[hasName].value
-//            def id = slugify.slugify(name)
-//            def node = new Node(k)
-//            def propertyInstances = [:]
-//            def now = new Date()
-//            def value
-//
-//            propertyInstances[k.toURI('ui:createAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(now), dataType: k.toURI('xsd:dateTime')]
-//
-//            data.each{
-//                if(it.key != type){
-//                    propertyInstances[it.key] = it.value
-//                }
-//            }
-//
-//            println id
-//            println data[type]
-//            println propertyInstances
-//        }
+        properties[k.toURI('rdfs:label')] =  [value: k[analysisURI]['label'], dataType: k.toURI('rdfs:Literal')]     //new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now)
+        properties[k.toURI(':appliedTo')] =  [value: k[analysisURI]['appliedTo'], dataType: k[':appliedTo'].range]
+        properties[k.toURI('ui:createAt')] = [value: k[analysisURI]['createAt'], dataType: k.toURI('xsd:dateTime')]
+        properties[k.toURI('ui:updateAt')] = [value: new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()), dataType: k.toURI('xsd:dateTime')]
+
+        k.deleteFeatures(analysisId)
+        k.deleteAnalysis(analysisId)
+
+        k.insertAnalysis(analysisId, properties)
+        k.insertFeatures(analysisId, featuresInstances(params))
+        k.insertExtraFeatures(analysisId, extraFeaturesInstances(params))
+
+        redirect(action: 'analysis', id: analysisId)
     }
 }
